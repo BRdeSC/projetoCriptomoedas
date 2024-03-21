@@ -15,6 +15,7 @@ interface CoinProps {
   market_cap: string;
   formatedPrice: string;
   formatedMarket: string;
+  numberDelta: number;
 }
 
 interface DataProps{
@@ -23,33 +24,33 @@ interface DataProps{
 
 export function Home(){
   const [coins, setCoins] = useState<CoinProps[]>([])
-  const [inpuValue, setInputValue] = useState("")
+  const [inputValue, setInputValue] = useState("")
   const navigate = useNavigate();
-
 
   useEffect(() => {
     function getData(){
-      fetch('https://sujeitoprogramador.com/api-cripto/?key=86dcd0490c54bfbd&pref=BRL')
+      fetch('https://sujeitoprogramador.com/api-cripto/?key=b4cd8f8fb3de94c6')
       .then(response => response.json())
       .then((data: DataProps) => {
-        let coinsData = data.coins.slice(0, 15);
-
+        let coinsData = data.coins.slice(0, 15); 
+          console.log(coinsData)
         let price = Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL"
-        })
+            style: "currency",
+            currency: "BRL",
+        }); 
 
         const formatResult = coinsData.map((item) => {
           const formated = {
             ...item,
             formatedPrice: price.format(Number(item.price)),
             formatedMarket: price.format(Number(item.market_cap)),
+            numberDelta: parseFloat(item.delta_24h.replace(",", "."))
           }
 
           return formated;
         })
 
-        setCoins(formatResult);
+        setCoins(formatResult)
       })
 
     }
@@ -59,12 +60,13 @@ export function Home(){
 
   }, [])
 
+
   function handleSearch(e: FormEvent){
     e.preventDefault();
-    if(inpuValue === "") return;
+    if(inputValue === "") return;
 
-    navigate(`/detail/${inpuValue}`)
-    
+    navigate(`/detail/${inputValue}`)
+  
   }
 
   return(
@@ -72,7 +74,7 @@ export function Home(){
       <form className={styles.form} onSubmit={handleSearch}>
         <input
           placeholder="Digite o simbolo da moeda: BTC..."
-          value={inpuValue}
+          value={inputValue}
           onChange={ (e) => setInputValue(e.target.value) }
         />
         <button type="submit">
@@ -104,7 +106,7 @@ export function Home(){
               <td className={styles.tdLabel} data-label="Preço">
                 {coin.formatedPrice}
               </td>
-              <td className={Number(coin?.delta_24h) >= 0 ? styles.tdProfit : styles.tdLoss}  data-label="Volume">
+              <td className={coin.numberDelta >= 0 ? styles.tdProfit : styles.tdLoss}  data-label="Volume">
                 <span>{coin.delta_24h}</span>
               </td>
   
